@@ -38,7 +38,7 @@ Prerequisite   : PowerShell V5
 param (
     [Parameter(Mandatory=$true,
         HelpMessage="Password used for the local administrator")]
-    [SecureString]$AdminPassword,
+    [string]$AdminPassword,
     [Parameter(Mandatory=$true,
         HelpMessage="IPAddress used to set as IP for the domain controller")]
     [string]$IPAddress,
