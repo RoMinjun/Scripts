@@ -20,4 +20,5 @@ This script requires some initial steps before hand:
 - Make ad roles dynamic and make a param for them (ADDS,DHCP,RAS and other optional roles that wont be configured in script but are nice to install nevertheless)
 - Param integrity checks
 - Check vadility of said commands
+- Logging/Output of said commands
 - Split the configuration of given roles into functions for reusability and optimization
