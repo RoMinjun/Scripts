@@ -91,7 +91,7 @@ netsh routing ip nat add interface $LanAdapterName
 
 #Configuring DHCP scope for IPv4
 $lan = Get-NetIPAddress -InterfaceAlias $LanAdapterName | Select-Object -ExpandProperty IPAddress
-Add-DhcpServerInDC -IPAddress $lan
+Add-DhcpServerInDC -DnsName "$env:COMPUTERNAME.$DomainName" -IPAddress $lan
 Add-DhcpServerV4Scope -Name "$DomainName Scope" -StartRange $DHCPRangeStart -EndRange $DHCPRangeEnd -SubnetMask 255.255.255.0 -LeaseDuration 7
 
 #Disabling Enhanced security
