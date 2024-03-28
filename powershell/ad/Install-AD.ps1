@@ -65,6 +65,7 @@ sc.exe stop wuauserv
 sc.exe config wuauserv start=disabled
 
 #Change Administrator password
+$SecureAdminPasswd = ConvertTo-SecureString -String $AdminPassword -AsPlainText -Force
 net user Administrator $AdminPassword
 
 #Adding NetAdapters and configuring with given ip address and disabling IPv6"
@@ -79,7 +80,7 @@ Install-WindowsFeature -Name AD-Domain-Services,RemoteAccess,DirectAccess-VPN,Ro
 
 #Get Server ready for ADDS promotion
 #Configuring Domain
-Install-ADDSForest -CreateDnsDelegation:$false -DatabasePath "C:\Windows\NTDS" -DomainNetbiosname $DomainName.split(".")[0] -DomainName "$DomainName" -DomainMode "WinThreshold" -ForestMode "WinThreshold" -InstallDNS -LogPath "C:\Windows\NTDS" -SysvolPath "C:\Windows\SYSVOL" -NoRebootOnCompletion -Confirm:$false -WarningAction silentlyContinue -Force:$true
+Install-ADDSForest -CreateDnsDelegation:$false -DatabasePath "C:\Windows\NTDS" -DomainNetbiosname $DomainName.split(".")[0] -DomainName "$DomainName" -DomainMode "WinThreshold" -ForestMode "WinThreshold" -InstallDNS -LogPath "C:\Windows\NTDS" -SysvolPath "C:\Windows\SYSVOL" -NoRebootOnCompletion -SafeModeAdministratorPassword $SecureAdminPasswd -Confirm:$false -WarningAction silentlyContinue -Force:$true
 
 #Configuring RAS
 Install-RemoteAccess -VpnType Vpn
@@ -89,9 +90,9 @@ netsh routing ip nat set interface $NatAdapterName mode=full
 netsh routing ip nat add interface $LanAdapterName
 
 #Configuring DHCP scope for IPv4
-$lan = Get-NetIPAddress -InterfaceAlias $LanAdapterName | Select-Object IPAddress
+$lan = Get-NetIPAddress -InterfaceAlias $LanAdapterName | Select-Object -ExpandProperty IPAddress
 Add-DhcpServerInDC -IPAddress $lan
-Add-DhcpServerV4Scope -Name "$DomainName Scope" -StartRange $DHCPRangeStart -EndRange $DCHPRangeEnd -SubnetMask 255.255.255.0 -LeaseDuration 7
+Add-DhcpServerV4Scope -Name "$DomainName Scope" -StartRange $DHCPRangeStart -EndRange $DHCPRangeEnd -SubnetMask 255.255.255.0 -LeaseDuration 7
 
 #Disabling Enhanced security
 $AdminKey = "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}"
