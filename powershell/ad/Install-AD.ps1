@@ -58,7 +58,6 @@ param (
 )
 
 Out-Null
-Import-Module ADDSDeployment
 
 #Uitzetten van de Windows Update Services
 sc.exe stop wuauserv
