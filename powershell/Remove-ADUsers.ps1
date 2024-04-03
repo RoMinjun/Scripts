@@ -1,13 +1,13 @@
 # Script made by Romin Kleeman
 
-# Ophalen van alle gebruikers die nog nooit hebben ingelogd
+# Uitlezen van CSV file
 $users = Get-ADUser -Filter * -Properties samaccountname, logoncount | Where-Object { $_.logoncount -eq 0 } | Select-Object samaccountname
 
-# Displayen van de gebruikers die verwijderd gaan worden
-Write-Host $users
+# Displayen van de gebruikers die verwijderd gaan worden (elke op een new line)
+$users | % { Write-Host $_.samaccountname }
 
 # Displayen van het aantal gebruikers dat wordt verwijderd
-Write-Host "Aantal gebruikers dat nog nooit ingelogd en verwijderd worden: $($users.Count)"
+Write-Host "`nAantal gebruikers dat nog nooit ingelogd en verwijderd worden: $($users.Count)"
 
 # De prompt voor de gebruiker om te bevestigen dat de gebruikers verwijderd moeten worden
 $choice = Read-Host -Prompt "Weet je het zeker dat je de gebruikers wilt verwijderd? (Y/N)"
@@ -18,8 +18,8 @@ if ($choice -eq "Y") {
 
     foreach ($user in $users) {
         try {
-            # Verwijderen van gebruikers account en toevoegen aan array
-            Remove-ADUser $user.samaccountname
+            # Aanmaken van gebruiker, account inschakelen en gebruiker dwingen om het standaard wachtwoord te wijzigen bij inloggen
+            Remove-ADUser $user.samaccountname -Confirm:$false
             Write-Host "Gebruikersaccount $($user.samaccountname) is succesvol verwijderd"
             $removedUsers += $user.samaccountname
         } catch {
@@ -28,9 +28,13 @@ if ($choice -eq "Y") {
         }
     }
 
-    # Aanmaken van bestanden voor verwijderde en niet verwijderde accounts
-    $removedUsers | Out-File -FilePath "verwijderde-accounts.txt"
-    $notRemovedUsers | Out-File -FilePath "niet-verwijderde-accounts.txt"
+    # Verwijderde en niet verwijderde accounts displayen
+    Write-Host "`nVerwijderde accounts:"
+    $removedUsers | % { Write-Host $_ }
+
+    Write-Host "`nAccounts waarvoor verwijderen niet gelukt is:"
+    $notRemovedUsers | % { Write-Host $_ }
+
 } else {
     Write-Host "Script aborted by user."
 }
