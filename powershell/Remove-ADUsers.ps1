@@ -18,7 +18,7 @@ if ($choice -eq "Y") {
 
     foreach ($user in $users) {
         try {
-            # Aanmaken van gebruiker, account inschakelen en gebruiker dwingen om het standaard wachtwoord te wijzigen bij inloggen
+            # verwijderen gebruiker
             Remove-ADUser $user.samaccountname -Confirm:$false
             Write-Host "Gebruikersaccount $($user.samaccountname) is succesvol verwijderd"
             $removedUsers += $user.samaccountname
