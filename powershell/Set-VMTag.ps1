@@ -33,6 +33,20 @@ function Get-VMTime {
     return $startTime, $stopTime
 }
 
+# Functie om tags op te halen van een VM
+function Get-VMTags {
+    param([string]$resourceGroup)
+    $vms = Get-AzVM -ResourceGroupName $resourceGroup
+    $vmTags = foreach ($vm in $vms) {
+        $tags = (Get-AzResource -ResourceId $vm.Id).Tags
+        [PSCustomObject]@{
+            "Name" = $vm.Name
+            "Tags" = $tags
+        }
+    }
+    return $vmTags
+}
+
 # Functie om tags toe te voegen aan een VM
 function Set-VMTag {
     param(
@@ -56,20 +70,6 @@ function Set-VMTag {
 
     # Tags toevoegen aan de VM
     Set-AzResource -ResourceId $vm.Id -Tag $tags -Force | Out-Null
-}
-
-# Functie om tags op te halen van een VM
-function Get-VMTags {
-    param([string]$resourceGroup)
-    $vms = Get-AzVM -ResourceGroupName $resourceGroup
-    $vmTags = foreach ($vm in $vms) {
-        $tags = (Get-AzResource -ResourceId $vm.Id).Tags
-        [PSCustomObject]@{
-            "Name" = $vm.Name
-            "Tags" = $tags
-        }
-    }
-    return $vmTags
 }
 
 # Ophalen van de resource group en controleren als deze bestaat
