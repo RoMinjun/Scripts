@@ -7,15 +7,13 @@ if (!(Get-Module -ListAvailable -Name Az)) {
 # Importeer de Az-module om de cmdlets te kunnen gebruiken
 Import-Module Az
 
-# Functie om een tijd in te voeren en te valideren (24uurs formaat)
+# Functie om een tijd in te voeren en te valideren
 function Get-ValidatedTime {
-    param(
-        [string]$prompt
-    )
+    param([string]$prompt)
 
     do {
         $time = Read-Host $prompt
-    } while ($time -notmatch "^([01]\d|2[0-3]):([0-5]\d)$")
+    } until ($time -match "^([01]\d|2[0-3]):([0-5]\d)$")
     return $time
 }
 
@@ -74,10 +72,17 @@ function Get-VMTags {
     return $vmTags
 }
 
-# Ophalen van de resource group, standaard start- en stoptijden en of deze gebruikt moeten worden
+# Ophalen van de resource group en controleren als deze bestaat
 $resourceGroup = Read-Host "Geef de naam van de resourcegroep op"
+if (!(Get-AzResourceGroup -Name $resourceGroup -ErrorAction SilentlyContinue)) {
+    Write-Host "Resourcegroep bestaat niet" -ForegroundColor Red
+    exit
+}
+
+# standaar start- en stoptijden opvragen
 $defaultStartTime, $defaultStopTime = Get-DefaultTime
 
+# User check als de standaard tijden gebruikt moeten worden
 $useDefaultTime = Read-Host "Wil je de standaard start- en stoptijd gebruiken? (y/n)"
 
 # Als de gebruiker niet kiest voor standaard start- en stoptijden, vraag deze dan per VM
