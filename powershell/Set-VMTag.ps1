@@ -79,24 +79,27 @@ if (!(Get-AzResourceGroup -Name $resourceGroup -ErrorAction SilentlyContinue)) {
     exit
 }
 
-# standaar start- en stoptijden opvragen
-$defaultStartTime, $defaultStopTime = Get-DefaultTime
-
 # User check als de standaard tijden gebruikt moeten worden
 $useDefaultTime = Read-Host "Wil je de standaard start- en stoptijd gebruiken? (y/n)"
 
 # Als de gebruiker niet kiest voor standaard start- en stoptijden, vraag deze dan per VM
 if ($useDefaultTime -eq 'y') {
+    # standaard start- en stoptijden opvragen
+    $defaultStartTime, $defaultStopTime = Get-DefaultTime
+
     $vms = Get-AzVM -ResourceGroupName $resourceGroup
     foreach ($vm in $vms) {
         Set-VMTag -vm $vm -startTime $defaultStartTime -stopTime $defaultStopTime
     }
-} else {
+} elseif ($useDefaultTime -eq 'n') {
     $vms = Get-AzVM -ResourceGroupName $resourceGroup
     foreach ($vm in $vms) {
         $startTime, $stopTime = Get-VMTime -vm $vm
         Set-VMTag -vm $vm -startTime $startTime -stopTime $stopTime
     }
+} else {
+    Write-Host "Ongeldige invoer" -ForegroundColor Red
+    exit
 }
 
 # Haal de tags op van de VM's in de resource group en geef deze weer in een tabel
