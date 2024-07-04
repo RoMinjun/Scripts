@@ -1,7 +1,7 @@
 import requests
 
 #Scrape json file from website
-page_scraped = requests.get("https://beheer.syntaxis.nl/api/ishethokalopen")
+page_scraped = requests.get("https://romin.dev/api/ishethokalopen")
 hok_status = page_scraped.json()["payload"]
 
 # Get hok open status
